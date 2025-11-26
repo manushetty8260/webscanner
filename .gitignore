@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+*.egg
+*.pytest_cache/
+.env
+venv/
+ENV/
+env/
+.venv/
+
+# IDEs
+.vscode/
+.idea/
+
+# Reports and runtime
+reports/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Byte-compiled / optimized
+*.pyo
+*.pyd
+
+# Distribution / packaging
+build/
+dist/
+
+# Misc
+coverage.xml
+htmlcov/

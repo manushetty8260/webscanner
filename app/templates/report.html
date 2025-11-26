@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scan Report - Web Vulnerability Scanner</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-brand">
+                <h1>🔒 Web Vulnerability Scanner</h1>
+            </div>
+            <ul class="navbar-nav">
+                <li><a href="/" class="nav-link">Dashboard</a></li>
+                <li><a href="#" class="nav-link" onclick="loadScans()">History</a></li>
+                <li><a href="#" class="nav-link" onclick="showStats()">Statistics</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <section class="report-section">
+            <div class="card">
+                <div class="report-header">
+                    <h2>Vulnerability Scan Report</h2>
+                    <a href="/api/report/{{ scan.scan_id }}/export" class="btn btn-secondary">Export JSON</a>
+                </div>
+
+                <div class="report-info">
+                    <div class="info-row">
+                        <span class="info-label">Target URL:</span>
+                        <span class="info-value">{{ scan.target }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Scan Time:</span>
+                        <span class="info-value">{{ scan.scan_time }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Scan ID:</span>
+                        <span class="info-value">{{ scan.scan_id }}</span>
+                    </div>
+                </div>
+
+                <!-- Summary Cards -->
+                <div class="summary-section">
+                    <h3>Vulnerability Summary</h3>
+                    <div class="summary-grid">
+                        <div class="summary-card total">
+                            <span class="summary-label">Total Issues</span>
+                            <span class="summary-value">{{ scan.summary.total }}</span>
+                        </div>
+                        <div class="summary-card critical">
+                            <span class="summary-label">Critical</span>
+                            <span class="summary-value">{{ scan.summary.critical }}</span>
+                        </div>
+                        <div class="summary-card high">
+                            <span class="summary-label">High</span>
+                            <span class="summary-value">{{ scan.summary.high }}</span>
+                        </div>
+                        <div class="summary-card medium">
+                            <span class="summary-label">Medium</span>
+                            <span class="summary-value">{{ scan.summary.medium }}</span>
+                        </div>
+                        <div class="summary-card low">
+                            <span class="summary-label">Low</span>
+                            <span class="summary-value">{{ scan.summary.low }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vulnerabilities List -->
+                <div class="vulnerabilities-section">
+                    <h3>Detected Vulnerabilities</h3>
+                    {% if scan.vulnerabilities %}
+                        {% set critical_vulns = scan.vulnerabilities | selectattr('severity', 'equalto', 'CRITICAL') | list %}
+                        {% set high_vulns = scan.vulnerabilities | selectattr('severity', 'equalto', 'HIGH') | list %}
+                        {% set medium_vulns = scan.vulnerabilities | selectattr('severity', 'equalto', 'MEDIUM') | list %}
+                        {% set low_vulns = scan.vulnerabilities | selectattr('severity', 'equalto', 'LOW') | list %}
+
+                        {% if critical_vulns %}
+                            <h4 class="severity-critical">🔴 CRITICAL ({{ critical_vulns | length }})</h4>
+                            {% for vuln in critical_vulns %}
+                                <div class="vulnerability-card critical">
+                                    <div class="vuln-header">
+                                        <span class="vuln-type">{{ vuln.type }}</span>
+                                        <span class="severity-badge critical">CRITICAL</span>
+                                    </div>
+                                    <div class="vuln-details">
+                                        {% if vuln.parameter %}
+                                            <p><strong>Parameter:</strong> {{ vuln.parameter }}</p>
+                                        {% endif %}
+                                        {% if vuln.payload %}
+                                            <p><strong>Payload:</strong> <code>{{ vuln.payload }}</code></p>
+                                        {% endif %}
+                                        {% if vuln.description %}
+                                            <p><strong>Description:</strong> {{ vuln.description }}</p>
+                                        {% endif %}
+                                        {% if vuln.evidence %}
+                                            <p><strong>Evidence (first 200 chars):</strong></p>
+                                            <pre class="evidence">{{ vuln.evidence[:200] }}</pre>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+
+                        {% if high_vulns %}
+                            <h4 class="severity-high">🟠 HIGH ({{ high_vulns | length }})</h4>
+                            {% for vuln in high_vulns %}
+                                <div class="vulnerability-card high">
+                                    <div class="vuln-header">
+                                        <span class="vuln-type">{{ vuln.type }}</span>
+                                        <span class="severity-badge high">HIGH</span>
+                                    </div>
+                                    <div class="vuln-details">
+                                        {% if vuln.parameter %}
+                                            <p><strong>Parameter:</strong> {{ vuln.parameter }}</p>
+                                        {% endif %}
+                                        {% if vuln.payload %}
+                                            <p><strong>Payload:</strong> <code>{{ vuln.payload }}</code></p>
+                                        {% endif %}
+                                        {% if vuln.description %}
+                                            <p><strong>Description:</strong> {{ vuln.description }}</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+
+                        {% if medium_vulns %}
+                            <h4 class="severity-medium">🟡 MEDIUM ({{ medium_vulns | length }})</h4>
+                            {% for vuln in medium_vulns %}
+                                <div class="vulnerability-card medium">
+                                    <div class="vuln-header">
+                                        <span class="vuln-type">{{ vuln.type }}</span>
+                                        <span class="severity-badge medium">MEDIUM</span>
+                                    </div>
+                                    <div class="vuln-details">
+                                        <p><strong>Description:</strong> {{ vuln.description }}</p>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+
+                        {% if low_vulns %}
+                            <h4 class="severity-low">🟢 LOW ({{ low_vulns | length }})</h4>
+                            {% for vuln in low_vulns %}
+                                <div class="vulnerability-card low">
+                                    <div class="vuln-header">
+                                        <span class="vuln-type">{{ vuln.type }}</span>
+                                        <span class="severity-badge low">LOW</span>
+                                    </div>
+                                    <div class="vuln-details">
+                                        <p><strong>Description:</strong> {{ vuln.description }}</p>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    {% else %}
+                        <p class="no-vulns">✅ No vulnerabilities detected!</p>
+                    {% endif %}
+                </div>
+
+                <!-- Recommendations -->
+                <div class="recommendations-section">
+                    <h3>📋 Remediation Recommendations</h3>
+                    <div class="recommendations">
+                        <div class="recommendation">
+                            <h4>XSS Prevention</h4>
+                            <ul>
+                                <li>Implement input validation and sanitization</li>
+                                <li>Use output encoding for user-supplied data</li>
+                                <li>Apply Content Security Policy (CSP) headers</li>
+                                <li>Use modern frameworks with auto-escaping</li>
+                            </ul>
+                        </div>
+                        <div class="recommendation">
+                            <h4>SQL Injection Prevention</h4>
+                            <ul>
+                                <li>Use parameterized queries/prepared statements</li>
+                                <li>Implement input validation</li>
+                                <li>Apply principle of least privilege to DB accounts</li>
+                                <li>Use ORM frameworks for database interaction</li>
+                            </ul>
+                        </div>
+                        <div class="recommendation">
+                            <h4>CSRF Prevention</h4>
+                            <ul>
+                                <li>Implement CSRF tokens in forms</li>
+                                <li>Use SameSite cookie attribute</li>
+                                <li>Verify origin and referer headers</li>
+                                <li>Use POST method for state-changing operations</li>
+                            </ul>
+                        </div>
+                        <div class="recommendation">
+                            <h4>Security Headers</h4>
+                            <ul>
+                                <li>Add X-Content-Type-Options: nosniff</li>
+                                <li>Add X-Frame-Options: DENY/SAMEORIGIN</li>
+                                <li>Implement Strict-Transport-Security (HSTS)</li>
+                                <li>Add Content-Security-Policy headers</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="back-link">
+                    <a href="/" class="btn btn-secondary">← Back to Dashboard</a>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Web Vulnerability Scanner | OWASP Top 10 Focus</p>
+    </footer>
+</body>
+</html>

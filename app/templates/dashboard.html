@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Application Vulnerability Scanner</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-brand">
+                <h1>🔒 Web Vulnerability Scanner</h1>
+            </div>
+            <ul class="navbar-nav">
+                <li><a href="/" class="nav-link active">Dashboard</a></li>
+                <li><a href="#" class="nav-link" onclick="loadScans()">History</a></li>
+                <li><a href="#" class="nav-link" onclick="showStats()">Statistics</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Statistics Section -->
+        <section id="stats-section" class="stats-section">
+            <div class="stat-card">
+                <h3>Total Scans</h3>
+                <p class="stat-number" id="total-scans">0</p>
+            </div>
+            <div class="stat-card">
+                <h3>Total Vulnerabilities</h3>
+                <p class="stat-number" id="total-vulns">0</p>
+            </div>
+            <div class="stat-card critical">
+                <h3>Critical Issues</h3>
+                <p class="stat-number" id="critical-vulns">0</p>
+            </div>
+            <div class="stat-card">
+                <h3>Avg Vulns/Scan</h3>
+                <p class="stat-number" id="avg-vulns">0</p>
+            </div>
+        </section>
+
+        <!-- New Scan Section -->
+        <section class="scan-section">
+            <div class="card">
+                <h2>Start New Scan</h2>
+                <form id="scan-form">
+                    <div class="form-group">
+                        <label for="target-url">Target URL:</label>
+                        <input type="url" id="target-url" name="target_url" 
+                               placeholder="https://example.com" required>
+                        <small>Enter the website URL to scan for vulnerabilities</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Select Vulnerability Tests:</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox">
+                                <input type="checkbox" id="test-xss" name="test_xss" checked>
+                                <label for="test-xss">XSS (Cross-Site Scripting)</label>
+                            </div>
+                            <div class="checkbox">
+                                <input type="checkbox" id="test-sqli" name="test_sqli" checked>
+                                <label for="test-sqli">SQLi (SQL Injection)</label>
+                            </div>
+                            <div class="checkbox">
+                                <input type="checkbox" id="test-csrf" name="test_csrf" checked>
+                                <label for="test-csrf">CSRF (Cross-Site Request Forgery)</label>
+                            </div>
+                            <div class="checkbox">
+                                <input type="checkbox" id="test-headers" name="test_headers" checked>
+                                <label for="test-headers">Security Headers</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Start Scan</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- Results Section -->
+        <section id="results-section" class="results-section" style="display: none;">
+            <div class="card">
+                <h2>Scan Results</h2>
+                <div id="results-content"></div>
+            </div>
+        </section>
+
+        <!-- Scan History Section -->
+        <section id="history-section" class="history-section" style="display: none;">
+            <div class="card">
+                <h2>Scan History</h2>
+                <div id="scans-list"></div>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Web Vulnerability Scanner | OWASP Top 10 Focus</p>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
